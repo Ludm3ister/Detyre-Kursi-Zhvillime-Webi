@@ -293,9 +293,6 @@ curl -X POST http://localhost:5000/api/tasks \
 
 ## ✅ Requirements checklist
 
-This project was built against a specific assignment. Here's where each
-requirement is implemented:
-
 **Frontend (React)**
 
 - ✅ **Functional components + React Hooks** — every component is a function;
