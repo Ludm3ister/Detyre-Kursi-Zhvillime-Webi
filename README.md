@@ -4,7 +4,7 @@ A full-stack task-management web application built with the **MERN** stack
 (**M**ongoDB, **E**xpress, **R**eact, **N**ode). It simulates a real management
 system with user accounts, role-based access, and full CRUD over tasks.
 
-It was built to satisfy a university assignment whose requirements are mapped
+Requirements are mapped
 explicitly in the [Requirements checklist](#-requirements-checklist) section.
 
 ---
@@ -35,7 +35,7 @@ explicitly in the [Requirements checklist](#-requirements-checklist) section.
 | Database     | MongoDB + Mongoose (ODM)                               |
 | Auth         | JSON Web Tokens (jsonwebtoken), bcryptjs (hashing/salt)|
 
-> **About the database:** this is a MongoDB project, as the assignment requires.
+> **About the database:** this is a MongoDB project.
 > MongoDB is a **NoSQL document database**, so there are **no SQL tables** and
 > no `CREATE TABLE` statements — Mongoose defines the document shape (the
 > "schema") directly in code (see `server/models`). A Supabase/PostgreSQL link
@@ -321,34 +321,3 @@ requirement is implemented:
 - ✅ **Clear Mongoose models** — `models/User.js`, `models/Task.js`.
 
 ---
-
-## 🧰 Troubleshooting
-
-- **`MongoDB connection error`** — check `MONGO_URI` in `server/.env`. For Atlas,
-  confirm your IP is allow-listed and the user/password are correct.
-- **CORS / network errors in the browser** — make sure the backend is running on
-  port 5000 and `CLIENT_URL` matches the frontend URL.
-- **401 on every request** — your token may be missing/expired; log out and back
-  in. Confirm `JWT_SECRET` didn't change after a token was issued.
-- **Port already in use** — change `PORT` in `server/.env` (and the proxy target
-  in `client/vite.config.js`) or the Vite port.
-
----
-
-## 📦 Production build (optional)
-
-```bash
-cd client
-npm run build     # outputs static files to client/dist
-```
-
-Serve `client/dist` from any static host (or from Express) and deploy the
-`server` to a Node host (Render, Railway, Fly.io, etc.) with the same
-environment variables. Set `VITE_API_URL` to your deployed API URL before
-building the client.
-
----
-
-## 📝 License
-
-MIT — free to use for learning and coursework.
