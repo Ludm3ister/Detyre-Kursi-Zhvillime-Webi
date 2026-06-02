@@ -36,11 +36,8 @@ explicitly in the [Requirements checklist](#-requirements-checklist) section.
 | Auth         | JSON Web Tokens (jsonwebtoken), bcryptjs (hashing/salt)|
 
 > **About the database:** this is a MongoDB project.
-> MongoDB is a **NoSQL document database**, so there are **no SQL tables** and
-> no `CREATE TABLE` statements — Mongoose defines the document shape (the
-> "schema") directly in code (see `server/models`). A Supabase/PostgreSQL link
-> does **not** apply here because Supabase is a SQL database and would be
-> incompatible with the required Mongoose models. The MongoDB equivalent of a
+> MongoDB is a **NoSQL document database**, — Mongoose defines the document shape (the
+> "schema") directly in code (see `server/models`). The MongoDB equivalent of a
 > "hosted database link" is a **MongoDB Atlas connection string**, explained in
 > [Step 2](#2-set-up-the-database-mongodb).
 
