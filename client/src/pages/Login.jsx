@@ -70,12 +70,6 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="demo-note">
-          <b>Demo accounts</b> (after running <code>npm run seed</code>):<br />
-          Admin — admin@taskflow.com / admin123<br />
-          User — user@taskflow.com / user123
-        </div>
-
         <div className="auth-foot">
           No account? <Link to="/register">Create one</Link>
         </div>
