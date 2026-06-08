@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
 import User from "../models/User.js";
+import { isAdmin } from "../utils/roles.js";
 
 export const protect = asyncHandler(async (req, res, next) => {
   let token;
@@ -32,9 +33,17 @@ export const protect = asyncHandler(async (req, res, next) => {
 });
 
 export const admin = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
+  if (req.user && isAdmin(req.user)) {
     return next();
   }
   res.status(403);
   throw new Error("Access denied, admin privileges required");
+};
+
+export const superAdmin = (req, res, next) => {
+  if (req.user && req.user.role === "superadmin") {
+    return next();
+  }
+  res.status(403);
+  throw new Error("Access denied, super admin privileges required");
 };

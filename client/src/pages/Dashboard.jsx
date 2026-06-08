@@ -6,14 +6,19 @@ import {
   useUpdateTaskMutation,
   useDeleteTaskMutation,
 } from "../api/tasksApiSlice";
+import { useGetUsersQuery } from "../api/authApiSlice";
 import TaskForm from "../components/TaskForm.jsx";
 import TaskItem from "../components/TaskItem.jsx";
+import { isAdminRole } from "../utils/roles";
 
 const Dashboard = () => {
   const { userInfo } = useSelector((state) => state.auth);
-  const isAdmin = userInfo?.role === "admin";
+  const isAdmin = isAdminRole(userInfo?.role);
 
   const { data: tasks = [], isLoading, error } = useGetTasksQuery();
+  // Full user list (admins only) so the owner filter can list every user,
+  // including those without any tasks.
+  const { data: users = [] } = useGetUsersQuery(undefined, { skip: !isAdmin });
   const [createTask, { isLoading: creating }] = useCreateTaskMutation();
   const [updateTask, { isLoading: updating }] = useUpdateTaskMutation();
   const [deleteTask] = useDeleteTaskMutation();
@@ -21,6 +26,7 @@ const Dashboard = () => {
   const [editing, setEditing] = useState(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [ownerFilter, setOwnerFilter] = useState("all");
   const [actionError, setActionError] = useState("");
 
   const submitting = creating || updating;
@@ -59,13 +65,26 @@ const Dashboard = () => {
     }
   };
 
+  // Every user (admins can filter tasks by a specific user, even users
+  // who currently have no tasks).
+  const owners = useMemo(
+    () =>
+      users.map((u) => ({ id: u._id, name: u.name || u.email || "Unknown" })),
+    [users]
+  );
+
   const filtered = useMemo(() => {
     return tasks.filter((t) => {
       const matchesStatus = statusFilter === "all" || t.status === statusFilter;
       const matchesSearch = t.title.toLowerCase().includes(search.toLowerCase());
-      return matchesStatus && matchesSearch;
+      const matchesOwner =
+        !isAdmin ||
+        ownerFilter === "all" ||
+        (ownerFilter === "mine" && t.owner?._id === userInfo._id) ||
+        t.owner?._id === ownerFilter;
+      return matchesStatus && matchesSearch && matchesOwner;
     });
-  }, [tasks, statusFilter, search]);
+  }, [tasks, statusFilter, search, ownerFilter, isAdmin, userInfo]);
 
   const stats = useMemo(
     () => ({
@@ -143,6 +162,22 @@ const Dashboard = () => {
               <option value="in-progress">In progress</option>
               <option value="done">Done</option>
             </select>
+            {isAdmin && (
+              <select
+                value={ownerFilter}
+                onChange={(e) => setOwnerFilter(e.target.value)}
+              >
+                <option value="all">All users</option>
+                <option value="mine">Only my tasks</option>
+                {owners
+                  .filter((o) => o.id !== userInfo._id)
+                  .map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.name}
+                    </option>
+                  ))}
+              </select>
+            )}
           </div>
 
           {isLoading ? (

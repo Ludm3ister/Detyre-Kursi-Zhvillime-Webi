@@ -73,6 +73,50 @@ export const deleteUser = asyncHandler(async (req, res) => {
     throw new Error("You cannot delete your own account");
   }
 
+  // Super admins are protected: no one can delete a super admin.
+  if (user.role === "superadmin") {
+    res.status(403);
+    throw new Error("Super admins cannot be deleted");
+  }
+
+  // A normal admin may only delete regular users, not other admins.
+  // (Super admins fall through and can delete admins and users.)
+  if (req.user.role === "admin" && user.role === "admin") {
+    res.status(403);
+    throw new Error("Admins cannot delete other admins");
+  }
+
   await user.deleteOne();
   res.json({ message: "User removed", id: req.params.id });
+});
+
+// Super-admin only: promote a user to admin or demote an admin to user.
+export const updateUserRole = asyncHandler(async (req, res) => {
+  const { role } = req.body;
+
+  if (!["user", "admin"].includes(role)) {
+    res.status(400);
+    throw new Error('Role must be either "user" or "admin"');
+  }
+
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  if (user._id.equals(req.user._id)) {
+    res.status(400);
+    throw new Error("You cannot change your own role");
+  }
+
+  if (user.role === "superadmin") {
+    res.status(403);
+    throw new Error("A super admin's role cannot be changed");
+  }
+
+  // updateOne avoids triggering the password-hash pre-save hook.
+  await User.updateOne({ _id: user._id }, { $set: { role } });
+
+  res.json({ _id: user._id, name: user.name, email: user.email, role });
 });

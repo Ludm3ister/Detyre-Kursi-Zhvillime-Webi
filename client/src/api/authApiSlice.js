@@ -27,6 +27,14 @@ export const authApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["User"],
     }),
+    updateUserRole: builder.mutation({
+      query: ({ id, role }) => ({
+        url: `/auth/users/${id}/role`,
+        method: "PATCH",
+        body: { role },
+      }),
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
@@ -35,4 +43,5 @@ export const {
   useRegisterMutation,
   useGetUsersQuery,
   useDeleteUserMutation,
+  useUpdateUserRoleMutation,
 } = authApiSlice;

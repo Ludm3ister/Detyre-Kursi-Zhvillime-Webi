@@ -1,12 +1,20 @@
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { useGetUsersQuery, useDeleteUserMutation } from "../api/authApiSlice";
+import {
+  useGetUsersQuery,
+  useDeleteUserMutation,
+  useUpdateUserRoleMutation,
+} from "../api/authApiSlice";
+import { canDeleteUser } from "../utils/roles";
 
 const Admin = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const { data: users = [], isLoading, error } = useGetUsersQuery();
   const [deleteUser] = useDeleteUserMutation();
+  const [updateUserRole] = useUpdateUserRoleMutation();
   const [actionError, setActionError] = useState("");
+
+  const isSuperAdmin = userInfo.role === "superadmin";
 
   const handleDelete = async (target) => {
     if (!window.confirm(`Delete user "${target.name}"?`)) return;
@@ -15,6 +23,17 @@ const Admin = () => {
       await deleteUser(target._id).unwrap();
     } catch (err) {
       setActionError(err?.data?.message || "Could not delete user.");
+    }
+  };
+
+  const handleRoleChange = async (target, role) => {
+    const verb = role === "admin" ? "Promote" : "Demote";
+    if (!window.confirm(`${verb} "${target.name}" to ${role}?`)) return;
+    setActionError("");
+    try {
+      await updateUserRole({ id: target._id, role }).unwrap();
+    } catch (err) {
+      setActionError(err?.data?.message || "Could not update role.");
     }
   };
 
@@ -65,12 +84,45 @@ const Admin = () => {
                         You
                       </span>
                     ) : (
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(u)}
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "0.5rem",
+                          justifyContent: "flex-end",
+                        }}
                       >
-                        Delete
-                      </button>
+                        {isSuperAdmin &&
+                          u.role !== "superadmin" &&
+                          (u.role === "admin" ? (
+                            <button
+                              className="btn btn-ghost btn-sm"
+                              onClick={() => handleRoleChange(u, "user")}
+                            >
+                              Demote to user
+                            </button>
+                          ) : (
+                            <button
+                              className="btn btn-ghost btn-sm"
+                              onClick={() => handleRoleChange(u, "admin")}
+                            >
+                              Make admin
+                            </button>
+                          ))}
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => handleDelete(u)}
+                          disabled={!canDeleteUser(userInfo, u)}
+                          title={
+                            canDeleteUser(userInfo, u)
+                              ? undefined
+                              : u.role === "superadmin"
+                              ? "Super admins cannot be deleted"
+                              : "Admins cannot delete other admins"
+                          }
+                        >
+                          Delete
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>

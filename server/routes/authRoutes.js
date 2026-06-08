@@ -6,8 +6,9 @@ import {
   getMe,
   getUsers,
   deleteUser,
+  updateUserRole,
 } from "../controllers/authController.js";
-import { protect, admin } from "../middleware/authMiddleware.js";
+import { protect, admin, superAdmin } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -26,5 +27,6 @@ router.get("/me", protect, getMe);
 
 router.get("/users", protect, admin, getUsers);
 router.delete("/users/:id", protect, admin, deleteUser);
+router.patch("/users/:id/role", protect, superAdmin, updateUserRole);
 
 export default router;

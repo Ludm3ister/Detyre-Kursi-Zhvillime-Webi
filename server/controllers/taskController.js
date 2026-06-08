@@ -1,13 +1,14 @@
 import asyncHandler from "express-async-handler";
 import Task from "../models/Task.js";
+import { isAdmin } from "../utils/roles.js";
 
 const canAccess = (task, user) =>
-  user.role === "admin" || task.owner.equals(user._id);
+  isAdmin(user) || task.owner.equals(user._id);
 
 export const getTasks = asyncHandler(async (req, res) => {
   const filter = {};
 
-  if (req.user.role !== "admin") {
+  if (!isAdmin(req.user)) {
     filter.owner = req.user._id;
   }
 

@@ -1,13 +1,14 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../slices/authSlice";
+import { isAdminRole } from "../utils/roles";
 
 const Navbar = () => {
   const { userInfo } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const isAdmin = userInfo?.role === "admin";
+  const isAdmin = isAdminRole(userInfo?.role);
 
   const handleLogout = () => {
     dispatch(logout());

@@ -1,4 +1,5 @@
 import { useSelector } from "react-redux";
+import { isAdminRole } from "../utils/roles";
 
 const formatDate = (value) =>
   value
@@ -11,7 +12,7 @@ const formatDate = (value) =>
 
 const TaskItem = ({ task, onEdit, onDelete, onStatusChange }) => {
   const { userInfo } = useSelector((state) => state.auth);
-  const isAdmin = userInfo?.role === "admin";
+  const isAdmin = isAdminRole(userInfo?.role);
   const due = formatDate(task.dueDate);
 
   return (
